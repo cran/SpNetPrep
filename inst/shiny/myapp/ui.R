@@ -1,11 +1,16 @@
 library(shiny)
 library(shinythemes)
-library(colourpicker)
 library(leaflet)
 library(leaflet.minicharts)
-library(shinyWidgets)
-library(rhandsontable)
-# library(ggmap)
+library(htmltools)
+library(sp)
+library(spatstat)
+library(maptools)
+library(geosphere)
+library(prodlim)
+library(rgeos)
+library(raster)
+library(rgdal)
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(theme = shinytheme("yeti"),

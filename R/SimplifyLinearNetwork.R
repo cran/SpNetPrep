@@ -13,9 +13,9 @@
 #' library(sp)
 #' library(raster)
 #' library(maptools)
-#' network <- as.linnet(SampleNetwork)
-#' Angle <- 15
-#' Length <- 30
+#' network <- chicago$domain
+#' Angle <- 10
+#' Length <- 20
 #' simplified_network_1 <- SimplifyLinearNetwork(network,Angle=Angle,Length=Length)
 #' \dontrun{
 #' M <- matrix(c(10,60,40,25),nrow=2)

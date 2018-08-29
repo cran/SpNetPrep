@@ -1,14 +1,16 @@
+library(shiny)
+library(shinythemes)
 library(leaflet)
 library(leaflet.minicharts)
 library(htmltools)
 library(sp)
-library(ggplot2)
 library(spatstat)
 library(maptools)
 library(geosphere)
 library(prodlim)
 library(rgeos)
 library(raster)
+library(rgdal)
 
 ### AUXILIARY FUNCTIONS
 
@@ -339,7 +341,8 @@ shinyServer(function(input, output,session) {
             lineas[[indice]]=linea
           }
           lineas <- SpatialLines(lineas)
-          spatial_lines_global<<-SpatialLinesDataFrame(lineas, spatial_lines_global@data, match.ID = F)
+          # spatial_lines_global<<-SpatialLinesDataFrame(lineas, spatial_lines_global@data, match.ID = F)
+          spatial_lines_global<<-lineas
 
           Vertices<<-vertices(spatial_lines_lin)
           Vert<<-cbind(spatial_lines_lin$from,spatial_lines_lin$to)
@@ -427,29 +430,43 @@ shinyServer(function(input, output,session) {
           setView(center_mapa_dir$x, center_mapa_dir$y, zoom = 13) %>%
           addPolylines(color="#545454",
                        weight=5)%>%
-          addCircleMarkers(lng=Vertices_dir$x,lat=Vertices_dir$y,radius=5,fillOpacity = 1,color="black")
-      } else if (length(directed_edges_1)>0 & length(directed_edges_menos1)==0){
+          addCircleMarkers(lng=Vertices_dir$x,lat=Vertices_dir$y,radius=8,fillOpacity = 1,color="black")
+      } else if (length(directed_edges_1)>0 & length(directed_edges_menos1)==0 & length(directed_edges_2)==0){
         
         leaflet(spatial_lines_global_dir) %>%
           addTiles() %>%
           setView(center_mapa_dir$x, center_mapa_dir$y, zoom = 13) %>%
           addPolylines(color="#545454",
                        weight=5)%>%
-          addCircleMarkers(lng=Vertices_dir$x,lat=Vertices_dir$y,radius=5,fillOpacity = 1,color="black")%>%
+          addCircleMarkers(lng=Vertices_dir$x,lat=Vertices_dir$y,radius=8,fillOpacity = 1,color="black")%>%
           addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_1,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_1,1]],
                    lng1=Vertices_dir$x[Vert_dir[directed_edges_1,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_1,2]], 
-                   color = "#00adff", maxThickness = 2, dir=1)
-      } else if (length(directed_edges_1)==0 & length(directed_edges_menos1)>0){
+                   color = "#0078ff", maxThickness = 1.6, dir=1)
+      } else if (length(directed_edges_1)==0 & length(directed_edges_menos1)>0 & length(directed_edges_2)==0){
 
         leaflet(spatial_lines_global_dir) %>%
           addTiles() %>%
           setView(center_mapa_dir$x, center_mapa_dir$y, zoom = 13) %>%
           addPolylines(color="#545454",
                        weight=5)%>%
-          addCircleMarkers(lng=Vertices_dir$x,lat=Vertices_dir$y,radius=5,fillOpacity = 1,color="black")%>%
+          addCircleMarkers(lng=Vertices_dir$x,lat=Vertices_dir$y,radius=8,fillOpacity = 1,color="black")%>%
           addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_menos1,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_menos1,1]],
                    lng1=Vertices_dir$x[Vert_dir[directed_edges_menos1,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_menos1,2]], 
-                   color = "#00adff", maxThickness = 2, dir=-1)
+                   color = "#0078ff", maxThickness = 1.6, dir=-1)
+      } else if (length(directed_edges_1)==0 & length(directed_edges_menos1)==0 & length(directed_edges_2)>0){
+        
+        leaflet(spatial_lines_global_dir) %>%
+          addTiles() %>%
+          setView(center_mapa_dir$x, center_mapa_dir$y, zoom = 13) %>%
+          addPolylines(color="#545454",
+                       weight=5)%>%
+          addCircleMarkers(lng=Vertices_dir$x,lat=Vertices_dir$y,radius=8,fillOpacity = 1,color="black")%>%
+          addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_2,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_2,1]],
+                   lng1=Vertices_dir$x[Vert_dir[directed_edges_2,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_2,2]], 
+                   color = "#e1009a", maxThickness = 1.6, dir=0) %>%
+          addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_2,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_2,1]],
+                   lng1=Vertices_dir$x[Vert_dir[directed_edges_2,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_2,2]], 
+                   color = "#e1009a", maxThickness = 1.6, dir=0)
       } else if (length(directed_edges_1)>0 & length(directed_edges_menos1)>0 & length(directed_edges_2)==0){
 
         leaflet(spatial_lines_global_dir) %>%
@@ -457,30 +474,66 @@ shinyServer(function(input, output,session) {
           setView(center_mapa_dir$x, center_mapa_dir$y, zoom = 13) %>%
           addPolylines(color="#545454",
                        weight=5)%>%
-          addCircleMarkers(lng=Vertices_dir$x,lat=Vertices_dir$y,radius=5,fillOpacity = 1,color="black")%>%
+          addCircleMarkers(lng=Vertices_dir$x,lat=Vertices_dir$y,radius=8,fillOpacity = 1,color="black")%>%
           addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_1,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_1,1]],
                    lng1=Vertices_dir$x[Vert_dir[directed_edges_1,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_1,2]],
-                   color = "#00adff", maxThickness = 2, dir=1)%>%
+                   color = "#0078ff", maxThickness = 1.6, dir=1)%>%
           addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_menos1,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_menos1,1]],
                    lng1=Vertices_dir$x[Vert_dir[directed_edges_menos1,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_menos1,2]],
-                   color = "#00adff", maxThickness = 2, dir=-1)
-      } else if (length(directed_edges_1)>0 & length(directed_edges_menos1)>0 & length(directed_edges_2)>0){
-
+                   color = "#0078ff", maxThickness = 1.6, dir=-1)
+      } else if (length(directed_edges_1)==0 & length(directed_edges_menos1)>0 & length(directed_edges_2)>0){
+        
         leaflet(spatial_lines_global_dir) %>%
           addTiles() %>%
           setView(center_mapa_dir$x, center_mapa_dir$y, zoom = 13) %>%
           addPolylines(color="#545454",
                        weight=5)%>%
-          addCircleMarkers(lng=Vertices_dir$x,lat=Vertices_dir$y,radius=5,fillOpacity = 1,color="black")%>%
-          addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_1,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_1,1]],
-                   lng1=Vertices_dir$x[Vert_dir[directed_edges_1,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_1,2]],
-                   color = "#00adff", maxThickness = 2, dir=1)%>%
+          addCircleMarkers(lng=Vertices_dir$x,lat=Vertices_dir$y,radius=8,fillOpacity = 1,color="black")%>%
           addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_menos1,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_menos1,1]],
                    lng1=Vertices_dir$x[Vert_dir[directed_edges_menos1,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_menos1,2]],
-                   color = "#00adff", maxThickness = 2, dir=-1)%>%
+                   color = "#0078ff", maxThickness = 1.6, dir=-1)%>%
           addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_2,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_2,1]],
                    lng1=Vertices_dir$x[Vert_dir[directed_edges_2,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_2,2]],
-                   color = "#cb3fe5", maxThickness = 2, dir=-1)
+                   color = "#e1009a", maxThickness = 1.6, dir=0)%>%
+          addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_2,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_2,1]],
+                   lng1=Vertices_dir$x[Vert_dir[directed_edges_2,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_2,2]],
+                   color = "#e1009a", maxThickness = 1.6, dir=0)
+      } else if (length(directed_edges_1)>0 & length(directed_edges_menos1)==0 & length(directed_edges_2)>0){
+        
+        leaflet(spatial_lines_global_dir) %>%
+          addTiles() %>%
+          setView(center_mapa_dir$x, center_mapa_dir$y, zoom = 13) %>%
+          addPolylines(color="#545454",
+                       weight=5)%>%
+          addCircleMarkers(lng=Vertices_dir$x,lat=Vertices_dir$y,radius=8,fillOpacity = 1,color="black")%>%
+          addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_1,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_1,1]],
+                   lng1=Vertices_dir$x[Vert_dir[directed_edges_1,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_1,2]],
+                   color = "#0078ff", maxThickness = 1.6, dir=-1)%>%
+          addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_2,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_2,1]],
+                   lng1=Vertices_dir$x[Vert_dir[directed_edges_2,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_2,2]],
+                   color = "#e1009a", maxThickness = 1.6, dir=0)%>%
+          addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_2,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_2,1]],
+                   lng1=Vertices_dir$x[Vert_dir[directed_edges_2,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_2,2]],
+                   color = "#e1009a", maxThickness = 1.6, dir=0)
+      } else if (length(directed_edges_1)>0 & length(directed_edges_menos1)>0 & length(directed_edges_2)>0){
+        leaflet(spatial_lines_global_dir) %>%
+          addTiles() %>%
+          setView(center_mapa_dir$x, center_mapa_dir$y, zoom = 13) %>%
+          addPolylines(color="#545454",
+                       weight=5)%>%
+          addCircleMarkers(lng=Vertices_dir$x,lat=Vertices_dir$y,radius=8,fillOpacity = 1,color="black")%>%
+          addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_1,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_1,1]],
+                   lng1=Vertices_dir$x[Vert_dir[directed_edges_1,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_1,2]],
+                   color = "#0078ff", maxThickness = 1.6, dir=1)%>%
+          addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_menos1,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_menos1,1]],
+                   lng1=Vertices_dir$x[Vert_dir[directed_edges_menos1,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_menos1,2]],
+                   color = "#0078ff", maxThickness = 1.6, dir=-1)%>%
+          addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_2,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_2,1]],
+                   lng1=Vertices_dir$x[Vert_dir[directed_edges_2,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_2,2]],
+                   color = "#e1009a", maxThickness = 1.6, dir=0)%>%
+          addFlows(lng0=Vertices_dir$x[Vert_dir[directed_edges_2,1]],lat0=Vertices_dir$y[Vert_dir[directed_edges_2,1]],
+                   lng1=Vertices_dir$x[Vert_dir[directed_edges_2,2]],lat1=Vertices_dir$y[Vert_dir[directed_edges_2,2]],
+                   color = "#e1009a", maxThickness = 1.6, dir=0)
       }
     }
   })
@@ -562,12 +615,15 @@ shinyServer(function(input, output,session) {
   observeEvent(input$action_flow,{
     data_of_click_origin_dir$clickedMarkerOrigin_dir <- NULL
     data_of_click_end_dir$clickedMarkerEnd_dir <- NULL
+    data_of_click_map_dir$clickedPoint <- NULL
+    contador_direccion_dir <<- 0
+    # buscar_eje=NA
   })
   
   ### ADD ARROWS TO THE NETWORK
   observe({
  
-    if (!is.null(data_of_click_end_dir$clickedMarkerEnd_dir) & contador_direccion_dir%%2==0){
+    if (!is.null(data_of_click_origin_dir$clickedMarkerOrigin_dir) & !is.null(data_of_click_end_dir$clickedMarkerEnd_dir) & contador_direccion_dir%%2==0){
       
       fromPoint=list(x=data_of_click_origin_dir$clickedMarkerOrigin_dir$lng,y=data_of_click_origin_dir$clickedMarkerOrigin_dir$lat)
       toPoint=list(x=data_of_click_end_dir$clickedMarkerEnd_dir$lng,y=data_of_click_end_dir$clickedMarkerEnd_dir$lat)
@@ -580,11 +636,11 @@ shinyServer(function(input, output,session) {
         
         V_origen=BuscarVertice(Vertices_dir,fromPoint,10^(-6))
         V_fin=BuscarVertice(Vertices_dir,toPoint,10^(-6))
-        print(V_origen)
-        print(V_fin)
+        # print(V_origen)
+        # print(V_fin)
 
         buscar_eje=row.match(c(V_origen,V_fin),Vert_dir)
-        print(buscar_eje)
+        # print(buscar_eje)
 
         if (!is.na(buscar_eje)){
           if (spatial_lines_global_dir@data$Dir[buscar_eje]==0){
@@ -594,24 +650,24 @@ shinyServer(function(input, output,session) {
             spatial_lines_global_dir@data$Dir[buscar_eje] <<- 2
           }
           
-          print(spatial_lines_global_dir@data$Dir[buscar_eje])
+          # print(spatial_lines_global_dir@data$Dir[buscar_eje])
         } else{
           buscar_eje=row.match(c(V_fin,V_origen),Vert_dir)
           if (!is.na(buscar_eje)){
-            print(buscar_eje)
-            print(spatial_lines_lin)
+            # print(buscar_eje)
+            # print(spatial_lines_lin)
             if (spatial_lines_global_dir@data$Dir[buscar_eje]==0){
               spatial_lines_global_dir@data$Dir[buscar_eje] <<- -1
             }
             else if (spatial_lines_global_dir@data$Dir[buscar_eje]==1){
               spatial_lines_global_dir@data$Dir[buscar_eje] <<- 2
             }
-            print(spatial_lines_global_dir@data$Dir[buscar_eje])
+            # print(spatial_lines_global_dir@data$Dir[buscar_eje])
           }
         }
         
-        leafletProxy("mymapdirection")%>%addFlows(lng0=fromPoint$x,lat0=fromPoint$y,lng1=toPoint$x,lat1=toPoint$y, color = "#00adff",
-                                         maxThickness = 2, dir=1)
+        leafletProxy("mymapdirection")%>%addFlows(lng0=fromPoint$x,lat0=fromPoint$y,lng1=toPoint$x,lat1=toPoint$y, color = "#0078ff",
+                                           maxThickness = 1.6, dir=1)
       } 
       if (input$action_flow=="remove.flow"){
         
@@ -619,36 +675,73 @@ shinyServer(function(input, output,session) {
         
         V_origen=BuscarVertice(Vertices_dir,fromPoint,10^(-6))
         V_fin=BuscarVertice(Vertices_dir,toPoint,10^(-6))
-        print(V_origen)
-        print(V_fin)
+        # print(paste0("V_origen",V_origen))
+        # print(paste0("V_fin",V_fin))
 
         buscar_eje=row.match(c(V_origen,V_fin),Vert_dir)
-        print(buscar_eje)
+        # print(paste0("buscar_eje",buscar_eje))
         
         if (!is.na(buscar_eje)){
           if (spatial_lines_global_dir@data$Dir[buscar_eje]==1){
             spatial_lines_global_dir@data$Dir[buscar_eje] <<- 0
+            # print(spatial_lines_global_dir@data$Dir[buscar_eje])
+          } 
+          else if (spatial_lines_global_dir@data$Dir[buscar_eje]==-1){
+            spatial_lines_global_dir@data$Dir[buscar_eje] <<- 0
+            # print(spatial_lines_global_dir@data$Dir[buscar_eje])
           } 
           else if (spatial_lines_global_dir@data$Dir[buscar_eje]==2){
-            spatial_lines_global_dir@data$Dir[buscar_eje] <<- -1
+            spatial_lines_global_dir@data$Dir[buscar_eje] <<- 0
+            # print(spatial_lines_global_dir@data$Dir[buscar_eje])
           }
-          
-          print(spatial_lines_global_dir@data$Dir[buscar_eje])
         } else{
           buscar_eje=row.match(c(V_fin,V_origen),Vert_dir)
-          print(buscar_eje)
-          print(spatial_lines_lin_dir)
-          if (spatial_lines_global_dir@data$Dir[buscar_eje]==-1){
-            spatial_lines_global_dir@data$Dir[buscar_eje] <<- 0
+          aux_V_origen=V_origen
+          V_origen=V_fin
+          V_fin=aux_V_origen
+          aux_fromPoint_x=fromPoint$x
+          aux_fromPoint_y=fromPoint$y
+          fromPoint$x=toPoint$x
+          fromPoint$y=toPoint$y
+          toPoint$x=aux_fromPoint_x
+          toPoint$y=aux_fromPoint_y
+          # print(paste0("V_origen",V_origen))
+          # print(paste0("V_fin",V_fin))
+          # print(paste0("buscar_eje",buscar_eje))
+          # print(spatial_lines_lin_dir)
+          if (!is.na(buscar_eje)){
+            if (spatial_lines_global_dir@data$Dir[buscar_eje]==-1){
+              spatial_lines_global_dir@data$Dir[buscar_eje] <<- 0
+              # print(spatial_lines_global_dir@data$Dir[buscar_eje])
+            }
+            else if (spatial_lines_global_dir@data$Dir[buscar_eje]==1){
+              spatial_lines_global_dir@data$Dir[buscar_eje] <<- 0
+              # print(spatial_lines_global_dir@data$Dir[buscar_eje])
+            }
+            else if (spatial_lines_global_dir@data$Dir[buscar_eje]==2){
+              spatial_lines_global_dir@data$Dir[buscar_eje] <<- 0
+              # print(spatial_lines_global_dir@data$Dir[buscar_eje])
+            }
           }
-          else if (spatial_lines_global_dir@data$Dir[buscar_eje]==2){
-            spatial_lines_global_dir@data$Dir[buscar_eje] <<- 1
-          }
-          print(spatial_lines_global_dir@data$Dir[buscar_eje])
         }
         
-        leafletProxy("mymapdirection")%>%addFlows(lng0=fromPoint$x,lat0=fromPoint$y,lng1=toPoint$x,lat1=toPoint$y, color = "black",
-                                         maxThickness = 0, dir=0)
+        leafletProxy("mymapdirection")%>%
+          addFlows(lng0=fromPoint$x,lat0=fromPoint$y,lng1=toPoint$x,lat1=toPoint$y,
+                   color = "#545454",maxThickness = 1.7, dir=0)
+        
+        # leafletProxy("mymapdirection")%>%addFlows(lng0=Vertices_dir$x[V_origen],lat0=Vertices_dir$y[V_origen],
+        #                                           lng1=Vertices_dir$x[V_fin],lat1=Vertices_dir$y[V_fin],
+        #                                           color = "black",
+        #                                           maxThickness = 0, dir=1)
+      
+
+        # leafletProxy("mymapdirection")%>%addFlows(lng0=Vertices_dir$x[Vert_dir[,]],
+        #                                           lat0=Vertices_dir$y[Vert_dir[,]],
+        #                                           lng1=Vertices_dir$x[Vert_dir[,]],
+        #                                           lat1=Vertices_dir$y[Vert_dir[,]],
+        #                                           color = "black",
+        #                                           maxThickness = 0, dir=0)
+        
         
       }
       
@@ -679,20 +772,22 @@ shinyServer(function(input, output,session) {
             buscar_eje=row.match(c(V_fin,V_origen),Vert_dir)
             print(buscar_eje)
             print(spatial_lines_lin_dir)
-            if (spatial_lines_global_dir@data$Dir[buscar_eje]==0){
-              spatial_lines_global_dir@data$Dir[buscar_eje] <<- -1
+            if (!is.na(buscar_eje)){
+              if (spatial_lines_global_dir@data$Dir[buscar_eje]==0){
+                spatial_lines_global_dir@data$Dir[buscar_eje] <<- -1
+              }
+              else if (spatial_lines_global_dir@data$Dir[buscar_eje]==1){
+                spatial_lines_global_dir@data$Dir[buscar_eje] <<- 2
+              }
+              print(spatial_lines_global_dir@data$Dir[buscar_eje])
             }
-            else if (spatial_lines_global_dir@data$Dir[buscar_eje]==1){
-              spatial_lines_global_dir@data$Dir[buscar_eje] <<- 2
-            }
-            print(spatial_lines_global_dir@data$Dir[buscar_eje])
           }
         }
         ### ARROW ADDITION
         for (j in c(1:(length(flow_vertex)-1))){
           leafletProxy("mymapdirection")%>%addFlows(lng0=Vertices_dir$x[flow_vertex[j]],lat0=Vertices_dir$y[flow_vertex[j]],
-                                           lng1=Vertices_dir$x[flow_vertex[j+1]],lat1=Vertices_dir$y[flow_vertex[j+1]], color = "#00adff",
-                                           maxThickness = 2, dir=1)
+                                           lng1=Vertices_dir$x[flow_vertex[j+1]],lat1=Vertices_dir$y[flow_vertex[j+1]], color = "#0078ff",
+                                           maxThickness = 1.6, dir=1)
         }
       }
       
@@ -716,27 +811,29 @@ shinyServer(function(input, output,session) {
               spatial_lines_global_dir@data$Dir[buscar_eje] <<- 0
             } 
             else if (spatial_lines_global_dir@data$Dir[buscar_eje]==2){
-              spatial_lines_global_dir@data$Dir[buscar_eje] <<- -1
+              spatial_lines_global_dir@data$Dir[buscar_eje] <<- 0
             }
             print(spatial_lines_global_dir@data$Dir[buscar_eje])
           } else{
             buscar_eje=row.match(c(V_fin,V_origen),Vert_dir)
             print(buscar_eje)
             print(spatial_lines_lin_dir)
-            if (spatial_lines_global_dir@data$Dir[buscar_eje]==-1){
-              spatial_lines_global_dir@data$Dir[buscar_eje] <<- 0
+            if (!is.na(buscar_eje)){
+              if (spatial_lines_global_dir@data$Dir[buscar_eje]==-1){
+                spatial_lines_global_dir@data$Dir[buscar_eje] <<- 0
+              }
+              else if (spatial_lines_global_dir@data$Dir[buscar_eje]==2){
+                spatial_lines_global_dir@data$Dir[buscar_eje] <<- 0
+              }
+              print(spatial_lines_global_dir@data$Dir[buscar_eje])
             }
-            else if (spatial_lines_global_dir@data$Dir[buscar_eje]==2){
-              spatial_lines_global_dir@data$Dir[buscar_eje] <<- 1
-            }
-            print(spatial_lines_global_dir@data$Dir[buscar_eje])
           }
         }
         ### ARROW REMOVAL
         for (j in c(1:(length(flow_vertex)-1))){
           leafletProxy("mymapdirection")%>%addFlows(lng0=Vertices_dir$x[flow_vertex[j]],lat0=Vertices_dir$y[flow_vertex[j]],
-                                           lng1=Vertices_dir$x[flow_vertex[j+1]],lat1=Vertices_dir$y[flow_vertex[j+1]], color = "#00adff",
-                                           maxThickness = 0, dir=1)
+                                           lng1=Vertices_dir$x[flow_vertex[j+1]],lat1=Vertices_dir$y[flow_vertex[j+1]], color = "#545454",
+                                           maxThickness = 1.7, dir=0)
         }
       }
     }
