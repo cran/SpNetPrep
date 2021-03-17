@@ -4,7 +4,9 @@
 \name{SamplePointPattern}
 \alias{SamplePointPattern}
 \title{Point pattern on a road network simulating traffic accidents}
-\format{An object of class \code{lpp} (inherits from \code{ppx}) of length 3.}
+\format{
+An object of class \code{lpp} (inherits from \code{ppx}) of length 3.
+}
 \usage{
 SamplePointPattern
 }

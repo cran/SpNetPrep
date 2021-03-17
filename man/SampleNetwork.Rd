@@ -4,7 +4,9 @@
 \name{SampleNetwork}
 \alias{SampleNetwork}
 \title{Linear network representing a road structure}
-\format{An object of class \code{SpatialLines} of length 2513.}
+\format{
+An object of class \code{SpatialLines} of length 2513.
+}
 \usage{
 SampleNetwork
 }

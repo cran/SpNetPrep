@@ -4,7 +4,9 @@
 \name{SampleDirectedNetwork}
 \alias{SampleDirectedNetwork}
 \title{Linear network representing a directed road structure}
-\format{An object of class \code{SpatialLinesDataFrame} with 2513 rows and 3 columns.}
+\format{
+An object of class \code{SpatialLinesDataFrame} with 2513 rows and 3 columns.
+}
 \usage{
 SampleDirectedNetwork
 }

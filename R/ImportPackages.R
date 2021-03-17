@@ -1,4 +1,7 @@
 #' @import spatstat
+#' @import spatstat.geom
+#' @import spatstat.core
+#' @import spatstat.linnet
 #' @import leaflet
 #' @import shiny
 #' @import sp
